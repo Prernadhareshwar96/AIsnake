@@ -3,6 +3,12 @@ import sys
 import random
 import time
 
+#TODO:
+#Add cost function + make its parameters dynamically adjustable
+#Define the features that can be extracted from the game
+#Think about how the game and the agent might interact
+#Implement an agent
+
 class Snake():
     def __init__(self):
         self.position = [100,50]
