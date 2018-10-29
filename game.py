@@ -1,7 +1,7 @@
 import pygame
 import sys
 import random
-import time
+import GUI
 
 #TODO:
 #Add cost function + make its parameters dynamically adjustable
@@ -14,6 +14,7 @@ class Snake():
         self.position = [100,50]
         self.body = [[100,50],[90,50],[80,50]]
         self.direction = "RIGHT"
+        self.numberOfMovements = 0
 
     def changeDirTo(self, dir):
         if dir=='RIGHT' and not self.direction =='LEFT':
@@ -36,6 +37,7 @@ class Snake():
             self.position[1] += 10
 
         self.body.insert(0, self.position[:])
+        self.numberOfMovements += 1
 
         if self.position == foodPos:
             return 1
@@ -43,12 +45,15 @@ class Snake():
         self.body.pop()
         return 0
 
-    def checkCollision(self):
+    def getNumberOfMovements(self):
+        return self.numberOfMovements
+
+    def checkCollision(self, dim):
         #Wall collision
-        if self.position[0] > 490 or self.position[0]<0:
+        if self.position[0] > (dim[0]-10) or self.position[0]<0:
             return 1
 
-        if self.position[1] > 490 or self.position[1]<0:
+        if self.position[1] > (dim[1]-10) or self.position[1]<0:
             return 1
 
         #Self collision
@@ -67,70 +72,96 @@ class FoodSpawner():
     def __init__(self):
         self.position = [random.randrange(1,50)*10,random.randrange(1,50)*10]
         self.isFoodOnScreen = True
+        self.numberOfFood = 0
+
+    def getNumberOfFood(self):
+        return self.numberOfFood
 
     def spawnFood(self):
         if self.isFoodOnScreen == False:
             self.position = [random.randrange(1,50)*10,random.randrange(1,50)*10]
+            self.numberOfFood += 1
             self.isFoodOnScreen = True
         return self.position
 
     def setFoodOnScreen(self, b):
         self.isFoodOnScreen = b
 
-window = pygame.display.set_mode((500,500))
-pygame.display.set_caption('Super AI Snake')
-fps = pygame.time.Clock()
+    def getFoodPosition(self):
+        return self.position
 
-score = 0
+class SnakeGame():
+    def __init__(self, snake, foodSpawner, reward=100, cost=1, display=True, dimensions = (500,500)):
+        self.score = 0
+        self.snake = snake
+        self.foodSpawner = foodSpawner
+        self.reward = reward
+        self.cost = cost
+        self.GUI = None
+        self.numberOfIters = 0
+        self.dim = dimensions
+        if display:
+            self.GUI = GUI.SnakeGUI()
 
-snake = Snake()
-foodSpawner = FoodSpawner()
+    def gameOver(self):
+        pygame.quit()
+        sys.exit()
 
-def gameOver():
-    pygame.quit()
-    sys.exit()
-
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            gameOver()
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_RIGHT:
-                snake.changeDirTo('RIGHT')
-
-            if event.key == pygame.K_LEFT:
-                snake.changeDirTo('LEFT')
-
-            if event.key == pygame.K_UP:
-                snake.changeDirTo('UP')
-
-            if event.key == pygame.K_DOWN:
-                snake.changeDirTo('DOWN')
-
-    foodPos = foodSpawner.spawnFood()
-    if (snake.move(foodPos)==1):
-        score+=1
-        foodSpawner.setFoodOnScreen(False)
-
-    window.fill(pygame.Color(0,0,0))
-
-   #draw snake
-    for pos in snake.getBody():
-        pygame.draw.rect(window, pygame.Color(0,225,0),pygame.Rect(pos[0],pos[1],10,10))
-
-    #draw food
-    pygame.draw.rect(window, pygame.Color(225, 0, 0), pygame.Rect(foodPos[0], foodPos[1], 10, 10))
-
-    if(snake.checkCollision()==1):
+    def printStatus(self, gameOver = False):
         print('---------------------')
-        print('GAME OVER')
-        print('SCORE: ' + str(score))
+        if gameOver:
+            print('GAME OVER')
+        print('Score: ' + str(self.score))
+        print('Number of Food Items:' + str(self.foodSpawner.getNumberOfFood()))
+        print('Number of Movement Steps:' + str(self.snake.getNumberOfMovements()))
         print('---------------------')
-        gameOver()
+        #this is where we will give feedback to the training algorithm
+        #this is also where we will return the features
 
-    pygame.display.set_caption('Super AI Snake | Score: ' + str(score))
-    pygame.display.flip()
+    def getResults(self):
+        return (self.score, self.snake.getNumberOfMovements(),self.foodSpawner.getNumberOfFood())
 
-    #increas pace with scpore
-    fps.tick(int((100+score)/10))
+    def play(self):
+        while True:
+            self.numberOfIters += 1
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.gameOver()
+
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RIGHT:
+                        self.snake.changeDirTo('RIGHT')
+
+                    if event.key == pygame.K_LEFT:
+                        self.snake.changeDirTo('LEFT')
+
+                    if event.key == pygame.K_UP:
+                        self.snake.changeDirTo('UP')
+
+                    if event.key == pygame.K_DOWN:
+                        self.snake.changeDirTo('DOWN')
+
+            foodPos = self.foodSpawner.spawnFood()
+
+            if (self.snake.move(foodPos) == 1):
+                self.score += self.reward
+                self.foodSpawner.setFoodOnScreen(False)
+
+            if (self.snake.checkCollision(self.dim) == 1):
+                self.printStatus(True)
+                self.gameOver()
+                break
+
+            self.score -=self.cost
+
+            if self.GUI != None:
+                self.GUI.update(self.snake.getBody(), self.foodSpawner.getFoodPosition(), self.score)
+
+
+
+
+
+
+
+
