@@ -3,12 +3,6 @@ import sys
 import random
 import GUI
 
-#TODO:
-#Add cost function + make its parameters dynamically adjustable
-#Define the features that can be extracted from the game
-#Think about how the game and the agent might interact
-#Implement an agent
-
 class Snake():
     def __init__(self):
         self.position = [100,50]
@@ -103,6 +97,12 @@ class SnakeGame():
         if display:
             self.GUI = GUI.SnakeGUI()
 
+    def getActions(self):
+        return ['UP', 'LEFT', 'RIGHT', 'DOWN', 'NONE']
+
+    def getState(self):
+        return(self.snake.getBody(), self.foodSpawner.getFoodPosition(), self.dim)
+
     def gameOver(self):
         pygame.quit()
         sys.exit()
@@ -115,11 +115,58 @@ class SnakeGame():
         print('Number of Food Items:' + str(self.foodSpawner.getNumberOfFood()))
         print('Number of Movement Steps:' + str(self.snake.getNumberOfMovements()))
         print('---------------------')
-        #this is where we will give feedback to the training algorithm
-        #this is also where we will return the features
 
     def getResults(self):
         return (self.score, self.snake.getNumberOfMovements(),self.foodSpawner.getNumberOfFood())
+
+    def succAndProbReward(self, state, action):
+        raise Exception ('Not implemented yet')
+        return
+
+    def reset(self):
+        self.snake = Snake()
+        self.score = 0
+        self.numberOfIters = 0
+
+    def simulate(self, RLAgent, numTrials=1, maxIterations=1000):
+        trialResults = []
+        for trial in range(0,numTrials):
+            results = []
+            for iter in range(0,maxIterations):
+                while True:
+                    self.numberOfIters += 1
+
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            self.gameOver()
+
+                    state = self.getState()
+                    action = RLAgent.getAction(state)
+                    if action != 'NONE':
+                        self.snake.changeDirTo(action)
+
+                    foodPos = self.foodSpawner.spawnFood()
+
+                    if (self.snake.move(foodPos) == 1):
+                        self.score += self.reward
+                        self.foodSpawner.setFoodOnScreen(False)
+
+                    if (self.snake.checkCollision(self.dim) == 1):
+                        self.printStatus(True)
+                        RLAgent.incorporateFeedback(state,action,self.score,[])
+                        self.gameOver()
+                        break
+
+                    self.score -=self.cost
+                    RLAgent.incorporateFeedback(state, action, self.score, self.getState())
+
+                    if self.GUI != None:
+                        self.GUI.update(self.snake.getBody(), self.foodSpawner.getFoodPosition(), self.score)
+                results.append(self.score)
+                self.reset()
+            trialResults.append(results)
+            self.reset()
+        return trialResults
 
     def play(self):
         while True:
