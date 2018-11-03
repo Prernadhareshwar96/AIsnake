@@ -6,9 +6,15 @@ Cost + Reward can be variably defined for every instance of SnakeGame |
 Agent interface |
 Agent executing random policy |
 
-TODO:
+TODO - Progress Proposal:
+S:
  - Implement functionality to play multiple games in a row
  - Implement functinoality to play multiple games in parallel
+Y&P
+ - Define Game State
  - Implement succAndProbReward function in snakeGame
- - Implement feature extractor in RLAgent.py
- - Implement Q-Learning Agent
+ - Implement simple feature extractor in RLAgent.py (one that just echos the state)
+ - Implement Q-Learning Agent that incorporates feedback
+ 
+TODO - Final Proposal:
+ - Implement advanced feature extractor 
