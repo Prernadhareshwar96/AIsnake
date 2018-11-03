@@ -95,7 +95,7 @@ class SnakeGame():
         self.numberOfIters = 0
         self.dim = dimensions
         if display:
-            self.GUI = GUI.SnakeGUI()
+            self.GUI = GUI.SnakeGUI(self.dim)
 
     def getActions(self):
         return ['UP', 'LEFT', 'RIGHT', 'DOWN', 'NONE']
@@ -136,9 +136,10 @@ class SnakeGame():
                 while True:
                     self.numberOfIters += 1
 
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
-                            self.gameOver()
+                    if not self.GUI == None:
+                        for event in pygame.event.get():
+                            if event.type == pygame.QUIT:
+                                self.gameOver()
 
                     state = self.getState()
                     action = RLAgent.getAction(state)
