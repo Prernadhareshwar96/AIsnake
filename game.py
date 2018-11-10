@@ -128,7 +128,7 @@ class SnakeGame():
         self.score = 0
         self.numberOfIters = 0
 
-    def simulate(self, RLAgent, numTrials=1, maxIterations=1000):
+    def simulate(self, RLAgent, numTrials=1, maxIterations=1):
         trialResults = []
         for trial in range(0,numTrials):
             results = []
@@ -155,7 +155,7 @@ class SnakeGame():
                     if (self.snake.checkCollision(self.dim) == 1):
                         self.printStatus(True)
                         RLAgent.incorporateFeedback(state,action,self.score,[])
-                        self.gameOver()
+                        #self.gameOverSimul()
                         break
 
                     self.score -=self.cost
