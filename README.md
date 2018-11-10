@@ -8,8 +8,8 @@ Agent executing random policy |
 
 TODO - Progress Proposal:
  - S:
-   * Implement functionality to play multiple games in a row
-   * Implement functinoality to play multiple games in parallel
+   * Implement functionality to play multiple games in a row - DONE
+   * Implement functinoality to play multiple games in parallel - DONE
  - Y&P
    * Define Game State
    * Implement succAndProbReward function in snakeGame
@@ -18,3 +18,4 @@ TODO - Progress Proposal:
  
 TODO - Final Proposal:
  - Implement advanced feature extractor 
+ - Implement ability to incorporate Feedback from Agents that run in parallel
