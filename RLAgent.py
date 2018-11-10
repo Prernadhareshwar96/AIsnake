@@ -1,6 +1,9 @@
 import random
+
 class RLAgent:
     # Your algorithm will be asked to produce an action given a state.
+    def setActions(self, actions): raise NotImplementedError("Override me")
+
     def getAction(self, state): raise NotImplementedError("Override me")
 
     # We will call this function when simulating an MDP, and you should update
@@ -12,7 +15,10 @@ class RLAgent:
     def incorporateFeedback(self, state, action, reward, newState): raise NotImplementedError("Override me")
 
 class RandomSnakeAgent(RLAgent):
-    def __init__(self, actions):
+    def __init__(self, actions=None):
+        self.actions = actions
+
+    def setActions(self, actions):
         self.actions = actions
 
     def getAction(self, state):
