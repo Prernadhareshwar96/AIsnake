@@ -61,5 +61,3 @@ class multiGamer():
                     iteration += 1
                     results[(thread.threadName,trial,iteration)] = iterationResults
         return results
-
-
