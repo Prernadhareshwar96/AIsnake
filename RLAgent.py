@@ -75,12 +75,12 @@ class chutiya(RLAgent):
                 self.weights[f] = self.weights[f] - self.getStepSize() * Q_val * v + self.getStepSize() * (
                             reward + self.discount * V_opt) * v
 
-    def snakeFeatureExtractor(state, action):
-        # Feature Extractor should return distances into eight dimensions from the snakes head to....
-        #  ...walls
-        #  ...fruit
-        #  ...self
-        result = []
-        result.append((state[0][0], action), 1)
-        result.append((state[1], action), 1)
-        result.append((state, action), 1)
+def snakeFeatureExtractor(state, action):
+    # Feature Extractor should return distances into eight dimensions from the snakes head to....
+    #  ...walls
+    #  ...fruit
+    #  ...self
+    result = []
+    result.append((state[0][0], action), 1)
+    result.append((state[1], action), 1)
+    result.append((state, action), 1)
